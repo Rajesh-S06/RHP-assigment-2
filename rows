@@ -1,0 +1,46 @@
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int R = sc.nextInt(), C = sc.nextInt();
+        long[][] grid = new long[R][C];
+        long[][] dp = new long[R][C];
+
+        for (int i = 0; i < R; i++)
+            for (int j = 0; j < C; j++)
+                grid[i][j] = sc.nextLong();
+
+
+        for (int row = 0; row < R; row++)
+            dp[row][0] = grid[row][0];
+
+        for (int col = 1; col < C; col++) {
+            long[] fsmax = getFSMaxCol(dp, col - 1, R);
+            for (int row = 0; row < R; row++) {
+                dp[row][col] = grid[row][col] +
+                    (dp[row][col-1] == fsmax[0] ? fsmax[1] : fsmax[0]);
+            }
+        }
+
+        System.out.println("DP Matrix:");
+        for (int i = 0; i < R; i++) {
+            for (int j = 0; j < C; j++)
+                System.out.printf("%5d", dp[i][j]);
+            System.out.println();
+        }
+
+        System.out.println("Answer = " + getFSMaxCol(dp, C - 1, R)[0]);
+        sc.close();
+    }
+
+    private static long[] getFSMaxCol(long[][] dp, int col, int R) {
+        long fmax = Math.max(dp[0][col], dp[1][col]);
+        long smax = Math.min(dp[0][col], dp[1][col]);
+        for (int row = 2; row < R; row++) {
+            if (dp[row][col] >= fmax) { smax = fmax; fmax = dp[row][col]; }
+            else if (dp[row][col] > smax) smax = dp[row][col];
+        }
+        return new long[]{fmax, smax};
+    }
+}
